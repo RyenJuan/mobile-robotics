@@ -1,8 +1,10 @@
-# EECE Project
-# Smooth Path Planning as an Optimization Problem
-# Author: Ryan Huang
-#
-# Rapid Random Tree Class implementation
+'''
+EECE Project
+Smooth Path Planning as an Optimization Problem
+Author: Ryan Huang
+
+Rapid Random Tree class implementation
+'''
 
 from utility import *
 

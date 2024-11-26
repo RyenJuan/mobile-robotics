@@ -3,7 +3,7 @@ EECE Project
 Smooth Path Planning as an Optimization Problem
 Author: Ryan Huang
 
-Storing some utility functions to clean up the global namespace of other files
+Utility functions to clear up the global namespace of other files
 '''
 
 import numpy as np
@@ -48,9 +48,10 @@ def generate_vertical_points(num_points=100, vertical_spread=10, horizontal_spre
     points = np.column_stack((x_coords, y_coords))
     return points
 
-def centripetal_catmull_rom_spline(points, num_interpolated_points=100):
+
+def generate_cubic_spline(points, num_interpolated_points=100):
     """
-    Generate a Centripetal Catmull-Rom spline through the given points.
+    Generate a cubic spline spline through the given points.
 
     :param points: 2d array of (x,y) points to form the spline around (ndarray)
     :param num_interpolated_points: Number of points to form a smooth curve (int)
@@ -166,7 +167,7 @@ def plot_environment(rrt, avoid_points, path=None, optimize=False):
     # Path optimization begins here
     if optimize:
         result = path_optimizer(path[:,0], path[:,1], avoid_points, limit=8)
-        optimized_spline, _, _, _ = centripetal_catmull_rom_spline(result)
+        optimized_spline, _, _, _ = generate_cubic_spline(result)
         plt.plot(optimized_spline[:, 0], optimized_spline[:, 1], label="Optimized Spline", color="blue")
 
     # Plot obstacles

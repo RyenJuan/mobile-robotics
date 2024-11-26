@@ -1,14 +1,25 @@
-# EECE Project
-# Smooth Path Planning as an Optimization Problem
-# Author: Ryan Huang
+'''
+EECE Project
+Smooth Path Planning as an Optimization Problem
+Author: Ryan Huang
 
+Path optimizer via scipy.optimize.minimize
+'''
 from utility import *
 from scipy.optimize import minimize
 from reward import reward_function
 
 
 def path_optimizer(x_initial, y_fixed, avoid_set, limit):
+    """
+    Optimize the path using scipy.optimize.minimize
 
+    :param x_initial: Original fixed x coordinates (ndarray)
+    :param y_fixed: Original fixed y coordinates (ndarray)
+    :param avoid_set: Outermost vertices of the obstacles (ndarray)
+    :param limit: The rectangular bound on each spline point to optimize (float)
+    :return: Optimized points (ndarray)
+    """
     # Exclude the start and goal points from optimization
     # These points cannot shift or it defeats the point of path optimization
     intermediate_x = x_initial[1:-1]
@@ -47,11 +58,13 @@ def path_optimizer(x_initial, y_fixed, avoid_set, limit):
 
 
 if __name__ == "__main__":
-    # Run this file to test point generation and path optimizing
-    #
-    # It's essentially a very miniature RRT and spline generator
-    # Also tests the path optimizer function
-    #
+    '''
+    Run this file to test point generation and path optimizing
+    
+    It's essentially a very miniature RRT and spline generator
+    Also tests the path optimizer function
+    '''
+
     original_points = generate_vertical_points(num_points=8, vertical_spread=50, horizontal_spread=20)
     x_initial = original_points[:, 0]
     y_fixed = original_points[:, 1]
@@ -59,8 +72,8 @@ if __name__ == "__main__":
     optimized_points = path_optimizer(x_initial, y_fixed, [[1,1], [2,2]], limit=50)
 
     # Generate splines for visualization
-    original_spline, _, _, _ = centripetal_catmull_rom_spline(original_points)
-    optimized_spline, _, _, _ = centripetal_catmull_rom_spline(optimized_points)
+    original_spline, _, _, _ = generate_cubic_spline(original_points)
+    optimized_spline, _, _, _ = generate_cubic_spline(optimized_points)
 
 
     # Miscellaneous matplotlib jargon to make the graphs look pretty

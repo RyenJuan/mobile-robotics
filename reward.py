@@ -1,11 +1,22 @@
-# EECE Project
-# Smooth Path Planning as an Optimization Problem
-# Author: Ryan Huang
-# Reward function
+'''
+EECE Project
+Smooth Path Planning as an Optimization Problem
+Author: Ryan Huang
 
+The reward function using several penalties
 
+Minimizing the following:
+
+    Derivatives
+    Curvature
+    Path Length
+    Distance to obstacles
+    Collisions with obstacles
+    Derivation from the ideal straight line path
+'''
 import numpy as np
 
+# TODO: Refactor the reward function to turn the penalties into function inputs
 
 def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, curvature_penalty):
     """
@@ -33,18 +44,16 @@ def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, curvature_p
     '''
 
     min_distance = 5
-    # Extract unwanted vertices
-    avoid_x, avoid_y = avoid_set[0], avoid_set[1]
+    avoid_x, avoid_y = avoid_set[0], avoid_set[1]     # Extract unwanted vertices
     collision_penalty = 0
 
-    # Iterate through avoid points
+
     for ax, ay in zip(avoid_x, avoid_y):
         # Compute distances from this avoid point to all spline points
         distances = np.sqrt((intermediate_x - ax) ** 2 + (intermediate_y - ay) ** 2)
 
         # Check if any spline point is within the threshold distance
         if np.min(distances) < min_distance:
-            # Add penalty for being too close
             collision_penalty += 300
 
     '''
@@ -68,7 +77,7 @@ def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, curvature_p
     # Ensure the dimensions match (length of x_coords and y_coords should match)
     assert len(x_coords) == len(y_coords), f"Mismatch in lengths: {len(x_coords)} vs {len(y_coords)}"
 
-    from utility import calculate_spline_length, centripetal_catmull_rom_spline
+    from utility import calculate_spline_length, generate_cubic_spline
 
     '''
     DERIVATIVE PENALTY
@@ -76,8 +85,7 @@ def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, curvature_p
     '''
     # Generate the spline
     points = np.column_stack((x_coords, y_coords))
-    # Generate the spline
-    spline_points, cs_x, cs_y, t_fine = centripetal_catmull_rom_spline(points)
+    spline_points, cs_x, cs_y, t_fine = generate_cubic_spline(points)
 
     # Compute first and second derivatives
     dx_dt = cs_x.derivative()(t_fine)

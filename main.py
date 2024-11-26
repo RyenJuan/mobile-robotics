@@ -1,8 +1,10 @@
-# EECE Project
-# Smooth Path Planning as an Optimization Problem
-# Author: Ryan Huang
-#
-# Run this file
+'''
+EECE Project
+Smooth Path Planning as an Optimization Problem
+Author: Ryan Huang
+
+Run this file
+'''
 
 from RRT import RRT
 from utility import extract_rectangle_vertices, plot_environment
