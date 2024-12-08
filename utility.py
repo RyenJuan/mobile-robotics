@@ -175,6 +175,8 @@ def plot_environment(rrt, avoid_points, obstacles, path=None, optimize=False):
 
     # Plot the path
     if path is not None:
+        if path.ndim == 1:
+            path = path.reshape(-1, 2)
         plt.plot(path[:, 0], path[:, 1], 'r-', linewidth=2)
 
     # TODO: Calling path_optimizer probably could go somewhere else to make it more accessible
@@ -198,9 +200,3 @@ def plot_environment(rrt, avoid_points, obstacles, path=None, optimize=False):
     plt.title("RRT Path Planning")
     plt.grid(True)
     plt.show()
-
-
-
-
-
-

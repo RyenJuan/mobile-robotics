@@ -12,7 +12,7 @@ class RRT:
     """
     RRT Implementation. Creates the environment, obstacles, start, goal, and solves for the path
     """
-    def __init__(self, start, goal, bounds, obstacles, step_size=1, max_iter=1000):
+    def __init__(self, start, goal, bounds, obstacles, step_size=1, max_iter=2000):
         self.start = np.array(start)
         self.goal = np.array(goal)
         self.bounds = bounds
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     # Shrink the number of spline points to optimize to speed up computation
     cut_path = path[0::2]
     if goal not in cut_path:
-        np.append(cut_path, goal)
+        cut_path = np.append(cut_path, goal)
 
     # Plot the environment and the resulting path
     plot_environment(rrt, [avoid_x, avoid_y], obstacles, path=cut_path, optimize=False)
