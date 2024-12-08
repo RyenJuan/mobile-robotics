@@ -12,6 +12,7 @@ from scipy.integrate import quad
 import matplotlib.pyplot as plt
 from optimizer import path_optimizer
 from matplotlib.patches import Rectangle
+from path_time import data_restructuring, time_calculator
 
 def calculate_spline_length(cs_x, cs_y, t_start, t_end):
     """
@@ -184,9 +185,39 @@ def plot_environment(rrt, avoid_points, obstacles, path=None, optimize=False):
 
     # Path optimization begins here
     if optimize:
-        result = path_optimizer(path[:,0], path[:,1], avoid_points, obstacles, limit=8)
-        optimized_spline, _, _, _ = generate_cubic_spline(result)
+        result = path_optimizer(path[:,0], path[:,1], avoid_points, obstacles, limit=12)
+        optimized_spline, cs_x, cs_y, t_fine = generate_cubic_spline(result)
         plt.plot(optimized_spline[:, 0], optimized_spline[:, 1], label="Optimized Spline", color="blue")
+
+        x, y, running_dist, curvature, v = data_restructuring(optimized_spline, cs_x, cs_y, t_fine)
+        t = time_calculator(x, y, running_dist, curvature, v)
+
+        # Create a figure and axis for the velocity plot
+        fig, ax1 = plt.subplots(figsize=(8, 6))
+
+        # Plot velocity on the primary y-axis
+        ax1.plot(running_dist, v, 'b-', label="Velocity")
+        ax1.set_xlabel("Running Distance")
+        ax1.set_ylabel("Velocity", color='b')
+        ax1.tick_params(axis='y', labelcolor='b')
+
+        # Create a second y-axis for the curvature plot
+        ax2 = ax1.twinx()
+        ax2.plot(running_dist, curvature[1:], 'r-', label="Curvature")
+        ax2.set_ylabel("Curvature", color='r')
+        ax2.tick_params(axis='y', labelcolor='r')
+
+        # Add a title and legend
+        fig.suptitle("Velocity and Curvature")
+        ax1.legend(loc="upper left")
+        ax2.legend(loc="upper right")
+
+        # Show the plot
+        plt.show()
+
+        print(f"time: {t[-1]}")
+        print(f"Velocity: {v}")
+
 
     # Plot obstacles
     plt.scatter(avoid_points[0], avoid_points[1], color="black", s=10)

@@ -15,22 +15,20 @@ if __name__ == "__main__":
     start = (0, 0)
     goal = (50, 50)
     bounds = [(0, 60), (0, 60)]  # Extra padding to aid visualization
-    num_obstacles = 5
+    num_obstacles = 20
     obstacles = []
 
     # Random Obstacle Generator
-    for i in range(num_obstacles):
-        location = np.random.randint(10, 40, (1, 2))
-        size = np.random.randint(5, 20, (1, 2))
+    while len(obstacles) < num_obstacles:
+        location = np.random.randint(5, 50, (1, 2))
+        size = np.random.randint(5, 10, (1, 2))
         obst = np.concatenate((location, size)).reshape(1, 4)
 
         if (obst[0][0] + obst[0][2] > goal[0] and obst[0][1] + obst[0][3] > goal[1]) or \
                 (obst[0][0] < start[0] and obst[0][1] < start[1]):
             continue
-        obstacles.append(tuple(obst.tolist()[0]))
-
-    # obstacles = [(5, 15, 20, 30), (37, 15, 20, 30)] # Hardcoded obstacle hallway
-
+        else:
+            obstacles.append(tuple(obst.tolist()[0]))
 
     # Create RRT object
     rrt = RRT(start=start, goal=goal, bounds=bounds, obstacles=obstacles, step_size=2)

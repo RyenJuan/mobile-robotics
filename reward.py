@@ -15,6 +15,7 @@ Minimizing the following:
     Derivation from the ideal straight line path
 '''
 import numpy as np
+from path_time import data_restructuring, time_calculator
 
 # TODO: Refactor the reward function to turn the penalties into function inputs
 
@@ -54,7 +55,7 @@ def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, obstacles, 
 
         # Check if any spline point is within the threshold distance
         if np.min(distances) < min_distance:
-            collision_penalty += 500
+            collision_penalty += 0
 
     '''
     Needed some extra functions and assertions
@@ -83,32 +84,20 @@ def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, obstacles, 
     norm_tangent = np.sqrt(dx_dt**2 + dy_dt**2)
     norm_curvature = np.sqrt(d2x_dt2**2 + d2y_dt2**2)
 
+
     '''
     COLLISION PENALTY
     ------------------------------------------------------------------------------------------
     '''
-    # FIXME: Currently takes the outermost largest rectangle that includes all obstacles.
-    #        Causes unnecessarily large cost in general
-
-    # min_x, max_x = np.min(avoid_x), np.max(avoid_y)
-    # min_y, max_y = np.min(avoid_x), np.max(avoid_y)
-    #
-    # for sp_x, sp_y in zip(x_coords, y_coords):
-    #     if min_x <= sp_x <= max_x and min_y <= sp_y <= max_y:
-    #         collision_penalty += 100000  # Penalty for being inside a rectangle
 
     for obst in obstacles:
         x, y, width, height = obst
         min_x, max_x = x, x + width
         min_y, max_y = y, y + height
 
-        #print(spline_points[1])
         for sp_x, sp_y in spline_points:
             if min_x <= sp_x <= max_x and min_y <= sp_y <= max_y:
                 collision_penalty += 100000
-                # print("penalized")
-
-    
 
     '''
     CURVATURE PENALTY
@@ -154,15 +143,24 @@ def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, obstacles, 
     total_length = calculate_spline_length(cs_x, cs_y, t_fine[0], t_fine[-1])
 
 
+    '''
+    TIME PENALTY
+    ------------------------------------------------------------------------------------------
+    '''
+
+    x, y, running_dist, curvature, v  = data_restructuring(spline_points, cs_x, cs_y, t_fine)
+    time_array = time_calculator(x, y, running_dist, curvature, v)
+    time_penalty = 100000*time_array[-1]
+
+
+
     # Final reward function with length, curvature, and radius of curvature penalties
     # reward = np.sum(norm_tangent) + np.sum(norm_curvature) + curvature_penalty_term + total_length + straight_line_penalty
-    # reward = -np.sum(norm_tangent) - np.sum(norm_curvature) + curvature_penalty_term + 200*total_length + collision_penalty
-    reward = curvature_penalty_term + 200*total_length + collision_penalty
+    # reward = -np.sum(norm_tangent) - np.sum(norm_curvature) + curvature_penalty_term + 150*total_length + collision_penalty + time_penalty
 
-
-    # reward = total_length
-    # reward = np.sum(norm_tangent) + np.sum(norm_curvature)+ 100*total_length
+    reward = time_penalty + 150*total_length + curvature_penalty_term + collision_penalty
     # print(f"Reward: {reward}")
-    print(f"1st Derivative: {-np.sum(norm_tangent):.8f} 2nd Derivative: {-np.sum(norm_curvature):.8f} Curvature: {curvature_penalty_term:.8f} Total Length: {total_length:.8f} Collision {collision_penalty}")
+    # print(f"1st Derivative: {-np.sum(norm_tangent):.8f} 2nd Derivative: {-np.sum(norm_curvature):.8f} Curvature: {curvature_penalty_term:.8f} Total Length: {total_length:.8f} Collision {collision_penalty} Time: {time_penalty}")
+    # print(f"Reward: {reward}")
+    print(f"Time: {time_penalty} Total Length: {total_length:.8f} Curvature: {curvature_penalty_term:.8f}  Collision {collision_penalty}")
     return reward  # Negate for minimization
-
