@@ -18,7 +18,7 @@ import numpy as np
 
 # TODO: Refactor the reward function to turn the penalties into function inputs
 
-def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, curvature_penalty):
+def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, obstacles, curvature_penalty):
     """
     Compute the negative reward for optimization, including a penalty for small radius of curvature.
 
@@ -26,7 +26,7 @@ def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, curvature_p
     :param x_initial: Original fixed x coordinates
     :param y_fixed: Original fixed y coordinates
     :param avoid_set: Outermost vertices of the obstacles
-    :param curvature_penalty: Curvature Penalty (float)
+    :param obstacles: list of obstacles [x,y,width,height]
     :return: Reward (float)
     """
 
@@ -54,7 +54,7 @@ def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, curvature_p
 
         # Check if any spline point is within the threshold distance
         if np.min(distances) < min_distance:
-            collision_penalty += 300
+            collision_penalty += 500
 
     '''
     COLLISION PENALTY

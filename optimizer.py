@@ -10,7 +10,7 @@ from scipy.optimize import minimize
 from reward import reward_function
 
 
-def path_optimizer(x_initial, y_fixed, avoid_set, limit):
+def path_optimizer(x_initial, y_fixed, avoid_set, obstacles, limit):
     """
     Optimize the path using scipy.optimize.minimize
 
@@ -39,7 +39,7 @@ def path_optimizer(x_initial, y_fixed, avoid_set, limit):
     result = minimize(
         reward_function,
         initial_guess,
-        args=(x_initial, y_fixed, avoid_set, curvature_penalty),
+        args=(x_initial, y_fixed, avoid_set, obstacles, curvature_penalty),
         method='SLSQP',
         bounds=bounds,
         options={'disp': True},

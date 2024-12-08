@@ -40,9 +40,9 @@ if __name__ == "__main__":
     # Shrink the number of spline points to optimize to speed up computation
     # FIXME: This doesn't actually work. The goal node is sometimes cut off
     #        Very easy fix, but I'm leaving this as a note to remind me to fix it
-    cut_path = path[0::2]
+    cut_path = path[0::5]
     if goal not in cut_path:
         np.append(cut_path, goal)
 
     # Plot the environment and the resulting path
-    plot_environment(rrt, [avoid_x, avoid_y], path=cut_path, optimize=True)
+    plot_environment(rrt, [avoid_x, avoid_y], obstacles, path=cut_path, optimize=True)

@@ -75,6 +75,21 @@ def generate_cubic_spline(points, num_interpolated_points=100):
     x_interpolated = cs_x(t_fine)
     y_interpolated = cs_y(t_fine)
 
+
+    """Calculate distance between each spline point"""
+    from math import hypot
+
+    def distance(p1, p2):
+        """Euclidean distance between two points."""
+        x1, y1 = p1
+        x2, y2 = p2
+        return hypot(x2 - x1, y2 - y1)
+
+    new_coords = [(float(x[0]),float(x[1])) for x in zip(x_interpolated, y_interpolated)]
+    res = [((new_coords[i]), (new_coords[i+1])) for i in range(len(new_coords)-1)]
+    dists = [distance(point[0], point[1]) for point in res]
+    # print(dists)
+
     return np.column_stack((x_interpolated, y_interpolated)), cs_x, cs_y, t_fine
 
 
@@ -138,11 +153,12 @@ def extract_rectangle_vertices(obstacles):
     return np.array(all_x), np.array(all_y)
 
 
-def plot_environment(rrt, avoid_points, path=None, optimize=False):
+def plot_environment(rrt, avoid_points, obstacles, path=None, optimize=False):
     """
     Plot the environment with obstacles, RRT tree, and the path
     :param rrt: rrt object
     :param avoid_points: vertices of the non-overlapping obstacles
+    :param obstacles: list of obstacles [x,y,width,height]
     :param path: 2d ndarray of the path from the start goal to the end goal
     :return: None
     """
@@ -166,7 +182,7 @@ def plot_environment(rrt, avoid_points, path=None, optimize=False):
 
     # Path optimization begins here
     if optimize:
-        result = path_optimizer(path[:,0], path[:,1], avoid_points, limit=8)
+        result = path_optimizer(path[:,0], path[:,1], avoid_points, obstacles, limit=8)
         optimized_spline, _, _, _ = generate_cubic_spline(result)
         plt.plot(optimized_spline[:, 0], optimized_spline[:, 1], label="Optimized Spline", color="blue")
 
