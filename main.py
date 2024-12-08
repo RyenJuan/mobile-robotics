@@ -42,7 +42,7 @@ if __name__ == "__main__":
     #        Very easy fix, but I'm leaving this as a note to remind me to fix it
     cut_path = path[0::5]
     if goal not in cut_path:
-        np.append(cut_path, goal)
+        cut_path = np.append(cut_path, goal)
 
     # Plot the environment and the resulting path
     plot_environment(rrt, [avoid_x, avoid_y], obstacles, path=cut_path, optimize=True)

@@ -57,20 +57,6 @@ def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, obstacles, 
             collision_penalty += 500
 
     '''
-    COLLISION PENALTY
-    ------------------------------------------------------------------------------------------
-    '''
-    # FIXME: Currently takes the outermost largest rectangle that includes all obstacles.
-    #        Causes unnecessarily large cost in general
-
-    # min_x, max_x = np.min(avoid_x), np.max(avoid_y)
-    # min_y, max_y = np.min(avoid_x), np.max(avoid_y)
-    #
-    # for sp_x, sp_y in zip(x_coords, y_coords):
-    #     if min_x <= sp_x <= max_x and min_y <= sp_y <= max_y:
-    #         collision_penalty += 100000  # Penalty for being inside a rectangle
-
-    '''
     Needed some extra functions and assertions
     ------------------------------------------------------------------------------------------
     '''
@@ -96,6 +82,31 @@ def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, obstacles, 
     # Compute tangent and curvature norms
     norm_tangent = np.sqrt(dx_dt**2 + dy_dt**2)
     norm_curvature = np.sqrt(d2x_dt2**2 + d2y_dt2**2)
+
+    '''
+    COLLISION PENALTY
+    ------------------------------------------------------------------------------------------
+    '''
+    # FIXME: Currently takes the outermost largest rectangle that includes all obstacles.
+    #        Causes unnecessarily large cost in general
+
+    # min_x, max_x = np.min(avoid_x), np.max(avoid_y)
+    # min_y, max_y = np.min(avoid_x), np.max(avoid_y)
+    #
+    # for sp_x, sp_y in zip(x_coords, y_coords):
+    #     if min_x <= sp_x <= max_x and min_y <= sp_y <= max_y:
+    #         collision_penalty += 100000  # Penalty for being inside a rectangle
+
+    for obst in obstacles:
+        x, y, width, height = obst
+        min_x, max_x = x, x + width
+        min_y, max_y = y, y + height
+
+        for sp_x, sp_y in zip(spline_points[0], spline_points[1]):
+            if min_x <= sp_x <= max_x and min_y <= sp_y <= max_y:
+                collision_penalty += 100000
+
+    
 
     '''
     CURVATURE PENALTY
@@ -147,6 +158,6 @@ def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, obstacles, 
     # reward = total_length
     # reward = np.sum(norm_tangent) + np.sum(norm_curvature)+ 100*total_length
     # print(f"Reward: {reward}")
-    print(f"1st Derivative: {-np.sum(norm_tangent)} 2nd Derivative: {-np.sum(norm_curvature)} Curvature: {curvature_penalty_term} Total Length: {total_length} Collision {collision_penalty}")
+    # print(f"1st Derivative: {-np.sum(norm_tangent)} 2nd Derivative: {-np.sum(norm_curvature)} Curvature: {curvature_penalty_term} Total Length: {total_length} Collision {collision_penalty}")
     return reward  # Negate for minimization
 
