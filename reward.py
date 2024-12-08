@@ -102,9 +102,11 @@ def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, obstacles, 
         min_x, max_x = x, x + width
         min_y, max_y = y, y + height
 
-        for sp_x, sp_y in zip(spline_points[0], spline_points[1]):
+        #print(spline_points[1])
+        for sp_x, sp_y in spline_points:
             if min_x <= sp_x <= max_x and min_y <= sp_y <= max_y:
                 collision_penalty += 100000
+                # print("penalized")
 
     
 
@@ -158,6 +160,6 @@ def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, obstacles, 
     # reward = total_length
     # reward = np.sum(norm_tangent) + np.sum(norm_curvature)+ 100*total_length
     # print(f"Reward: {reward}")
-    # print(f"1st Derivative: {-np.sum(norm_tangent)} 2nd Derivative: {-np.sum(norm_curvature)} Curvature: {curvature_penalty_term} Total Length: {total_length} Collision {collision_penalty}")
+    print(f"1st Derivative: {-np.sum(norm_tangent):.8f} 2nd Derivative: {-np.sum(norm_curvature):.8f} Curvature: {curvature_penalty_term:.8f} Total Length: {total_length:.8f} Collision {collision_penalty}")
     return reward  # Negate for minimization
 

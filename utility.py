@@ -49,7 +49,7 @@ def generate_vertical_points(num_points=100, vertical_spread=10, horizontal_spre
     return points
 
 
-def generate_cubic_spline(points, num_interpolated_points=100):
+def generate_cubic_spline(points, num_interpolated_points=200):
     """
     Generate a cubic spline spline through the given points.
 

@@ -168,4 +168,4 @@ if __name__ == "__main__":
         np.append(cut_path, goal)
 
     # Plot the environment and the resulting path
-    plot_environment(rrt, [avoid_x, avoid_y], path=cut_path, optimize=False)
+    plot_environment(rrt, [avoid_x, avoid_y], obstacles, path=cut_path, optimize=False)

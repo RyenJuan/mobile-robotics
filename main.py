@@ -19,11 +19,14 @@ if __name__ == "__main__":
     obstacles = []
 
     # Random Obstacle Generator
-    for i in range(num_obstacles):
-        location = np.random.randint(10, 40, (1, 2))
-        size = np.random.randint(5, 20, (1, 2))
-        obst = np.concatenate((location, size)).reshape(1, 4)
-        obstacles.append(tuple(obst.tolist()[0]))
+    # for i in range(num_obstacles):
+    #     location = np.random.randint(10, 40, (1, 2))
+    #     size = np.random.randint(5, 20, (1, 2))
+    #     obst = np.concatenate((location, size)).reshape(1, 4)
+    #     obstacles.append(tuple(obst.tolist()[0]))
+
+    obstacles = [(5, 15, 20, 30), (37, 15, 20, 30)] # Hardcoded obstacle hallway
+
 
     # Create RRT object
     rrt = RRT(start=start, goal=goal, bounds=bounds, obstacles=obstacles, step_size=2)
