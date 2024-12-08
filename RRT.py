@@ -12,7 +12,7 @@ class RRT:
     """
     RRT Implementation. Creates the environment, obstacles, start, goal, and solves for the path
     """
-    def __init__(self, start, goal, bounds, obstacles, step_size=1, max_iter=2000):
+    def __init__(self, start, goal, bounds, obstacles, step_size=1, max_iter=1000):
         self.start = np.array(start)
         self.goal = np.array(goal)
         self.bounds = bounds

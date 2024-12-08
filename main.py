@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     # Random Obstacle Generator
     for i in range(num_obstacles):
-        location = np.random.randint(10, 30, (1, 2))
+        location = np.random.randint(10, 40, (1, 2))
         size = np.random.randint(5, 20, (1, 2))
         obst = np.concatenate((location, size)).reshape(1, 4)
 

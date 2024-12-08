@@ -33,7 +33,7 @@ def path_optimizer(x_initial, y_fixed, avoid_set, obstacles, limit):
 
     bounds = bounds_x + bounds_y
 
-    curvature_penalty = 200  # Strong penalty for sharp turns
+    curvature_penalty = 250  # Strong penalty for sharp turns
 
     # Using scipy.minimize and the SLSQP method to minimize the reward function
     result = minimize(

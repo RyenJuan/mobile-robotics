@@ -156,7 +156,10 @@ def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, obstacles, 
 
     # Final reward function with length, curvature, and radius of curvature penalties
     # reward = np.sum(norm_tangent) + np.sum(norm_curvature) + curvature_penalty_term + total_length + straight_line_penalty
-    reward = -np.sum(norm_tangent) - np.sum(norm_curvature) + curvature_penalty_term + 150*total_length + collision_penalty
+    # reward = -np.sum(norm_tangent) - np.sum(norm_curvature) + curvature_penalty_term + 200*total_length + collision_penalty
+    reward = curvature_penalty_term + 200*total_length + collision_penalty
+
+
     # reward = total_length
     # reward = np.sum(norm_tangent) + np.sum(norm_curvature)+ 100*total_length
     # print(f"Reward: {reward}")
