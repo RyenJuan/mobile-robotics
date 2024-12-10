@@ -9,7 +9,6 @@ from utility import *
 from scipy.optimize import minimize
 from reward import reward_function
 
-
 def path_optimizer(x_initial, y_fixed, avoid_set, obstacles, limit):
     """
     Optimize the path using scipy.optimize.minimize

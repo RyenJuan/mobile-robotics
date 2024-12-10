@@ -11,7 +11,6 @@ from scipy.interpolate import CubicSpline
 from scipy.integrate import quad
 import matplotlib.pyplot as plt
 from optimizer import path_optimizer
-from matplotlib.patches import Rectangle
 from path_time import data_restructuring, time_calculator
 
 def calculate_spline_length(cs_x, cs_y, t_start, t_end):
@@ -75,7 +74,6 @@ def generate_cubic_spline(points, num_interpolated_points=200):
     # Compute interpolated points
     x_interpolated = cs_x(t_fine)
     y_interpolated = cs_y(t_fine)
-
 
     """Calculate distance between each spline point"""
     from math import hypot
@@ -154,7 +152,7 @@ def extract_rectangle_vertices(obstacles):
     return np.array(all_x), np.array(all_y)
 
 
-def plot_environment(rrt, avoid_points, obstacles, path=None, optimize=False):
+def plot_environment(rrt, astar_path, avoid_points, obstacles, path=None, optimize=False):
     """
     Plot the environment with obstacles, RRT tree, and the path
     :param rrt: rrt object
@@ -163,71 +161,91 @@ def plot_environment(rrt, avoid_points, obstacles, path=None, optimize=False):
     :param path: 2d ndarray of the path from the start goal to the end goal
     :return: None
     """
+
+    def calculate_path_length(points):
+        """Calculate the total length of the path."""
+        length = 0
+        for i in range(1, len(points)):
+            x1, y1 = points[i - 1]
+            x2, y2 = points[i]
+            length += np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        return length
+
     plt.figure(figsize=(8, 8))
     ax = plt.gca()
 
     # Plot obstacles
-    for obs in rrt.obstacles:
-        ax.add_patch(Rectangle((obs[0], obs[1]), obs[2], obs[3], color="gray"))
+    for obs in obstacles:
+        rect = plt.Rectangle((obs[0], obs[1]), obs[2], obs[3], color="gray")
+        ax.add_patch(rect)
 
     # Plot the RRT tree
-    tree_points = np.array(rrt.tree)
-    plt.plot(tree_points[:, 0], tree_points[:, 1], 'bo', markersize=2)
+    # tree_points = np.array(rrt.tree)
+    # plt.plot(tree_points[:, 0], tree_points[:, 1], 'bo', markersize=2)
 
-    # Plot the path
+    # Plot the RRT path
     if path is not None:
         if path.ndim == 1:
             path = path.reshape(-1, 2)
         plt.plot(path[:, 0], path[:, 1], 'r-', linewidth=2)
+
+    # Plot A* path if it exists
+    if astar_path is not None:
+        ax.plot(astar_path[:, 0], astar_path[:, 1], 'g-', linewidth=2, label='Path')
+
+
 
     # TODO: Calling path_optimizer probably could go somewhere else to make it more accessible
     #       But it's easiest to put it next to all the plotting code since it can get plotted quickly too
 
     # Path optimization begins here
     if optimize:
-        result = path_optimizer(path[:,0], path[:,1], avoid_points, obstacles, limit=12)
+        result = path_optimizer(path[:,0], path[:,1], avoid_points, obstacles, limit=20)
         optimized_spline, cs_x, cs_y, t_fine = generate_cubic_spline(result)
         plt.plot(optimized_spline[:, 0], optimized_spline[:, 1], label="Optimized Spline", color="blue")
+
+        # Plot obstacles
+        plt.scatter(avoid_points[0], avoid_points[1], color="black", s=10)
+
+        # Plot start and goal and other matplotlib jargon
+        plt.scatter([rrt.start[0], rrt.goal[0]], [rrt.start[1], rrt.goal[1]], color='green', label='Start/Goal', s=100)
+        plt.legend()
+        plt.xlim(rrt.bounds[0])
+        plt.ylim(rrt.bounds[1])
+        plt.gca().set_aspect('equal', adjustable='box')
+        plt.title("RRT Path Planning")
+        plt.grid(True)
+        plt.show()
 
         x, y, running_dist, curvature, v = data_restructuring(optimized_spline, cs_x, cs_y, t_fine)
         t = time_calculator(x, y, running_dist, curvature, v)
 
-        # Create a figure and axis for the velocity plot
-        fig, ax1 = plt.subplots(figsize=(8, 6))
-
-        # Plot velocity on the primary y-axis
-        ax1.plot(running_dist, v, 'b-', label="Velocity")
-        ax1.set_xlabel("Running Distance")
-        ax1.set_ylabel("Velocity", color='b')
-        ax1.tick_params(axis='y', labelcolor='b')
-
-        # Create a second y-axis for the curvature plot
-        ax2 = ax1.twinx()
-        ax2.plot(running_dist, curvature[1:], 'r-', label="Curvature")
-        ax2.set_ylabel("Curvature", color='r')
-        ax2.tick_params(axis='y', labelcolor='r')
-
-        # Add a title and legend
-        fig.suptitle("Velocity and Curvature")
-        ax1.legend(loc="upper left")
-        ax2.legend(loc="upper right")
-
-        # Show the plot
-        plt.show()
-
         print(f"time: {t[-1]}")
         print(f"Velocity: {v}")
 
+    path_length = calculate_path_length(path)
+    print(f"Length: {path_length} Time: {path_length / 7}")
 
-    # Plot obstacles
-    plt.scatter(avoid_points[0], avoid_points[1], color="black", s=10)
 
-    # Plot start and goal and other matplotlib jargon
-    plt.scatter([rrt.start[0], rrt.goal[0]], [rrt.start[1], rrt.goal[1]], color='green', label='Start/Goal', s=100)
-    plt.legend()
-    plt.xlim(rrt.bounds[0])
-    plt.ylim(rrt.bounds[1])
-    plt.gca().set_aspect('equal', adjustable='box')
-    plt.title("RRT Path Planning")
-    plt.grid(True)
+    # Create a figure and axis for the velocity plot
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+
+    # Plot velocity on the primary y-axis
+    ax1.plot(running_dist, v, 'b-', label="Velocity")
+    ax1.set_xlabel("Running Distance")
+    ax1.set_ylabel("Velocity", color='b')
+    ax1.tick_params(axis='y', labelcolor='b')
+
+    # Create a second y-axis for the curvature plot
+    ax2 = ax1.twinx()
+    ax2.plot(running_dist, curvature[1:], 'r-', label="Curvature")
+    ax2.set_ylabel("Curvature", color='r')
+    ax2.tick_params(axis='y', labelcolor='r')
+
+    # Add a title and legend
+    fig.suptitle("Velocity and Curvature")
+    ax1.legend(loc="upper left")
+    ax2.legend(loc="upper right")
+
+    # Show the plot
     plt.show()

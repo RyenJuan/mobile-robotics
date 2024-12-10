@@ -9,7 +9,7 @@ def distance(p1, p2):
     x2, y2 = p2
     return hypot(x2 - x1, y2 - y1)
 
-def data_restructuring(spline_points, cs_x, cs_y, t_fine, acc_max=200, v_max=50):
+def data_restructuring(spline_points, cs_x, cs_y, t_fine, acc_max=2000, v_max=500):
     x, y = list(spline_points[0]), list(spline_points[1])
     v, va, vb, vc, running_dist = [], [], [], [], []
 
@@ -51,23 +51,14 @@ def data_restructuring(spline_points, cs_x, cs_y, t_fine, acc_max=200, v_max=50)
 
         v.append(min(va[i], vb[i], vc[i]))
 
-
-
     return list(x), list(y), running_dist, curvature, v
 
 
 def time_calculator(x, y, running_dist, curvature, v):
     t = [0]
-
     v = [i for i in v if i != 0]
-
     for i in range(1, len(v)-1):
         t.append(t[i-1] + (running_dist[i] - running_dist[i-1])/v[i-1])
-
-
-
-
-
     return t
 
 

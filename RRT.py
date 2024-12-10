@@ -7,6 +7,7 @@ Rapid Random Tree class implementation
 '''
 
 from utility import *
+from matplotlib.pyplot import Rectangle
 
 class RRT:
     """
@@ -90,9 +91,12 @@ class RRT:
 
     def plan(self):
         """
-        Plan the path from start to goal using RRT
-        :return: None
+        Plan the path from start to goal using RRT and return the shortest path after max_iter iterations.
+        :return: Shortest path as a 2D ndarray or None if no path is found
         """
+        shortest_path = None
+        shortest_path_length = float('inf')
+
         for i in range(self.max_iter):
             rand_point = self.generate_random_point()
             nearest = self.nearest_neighbor(rand_point)
@@ -102,13 +106,27 @@ class RRT:
             # Check for collisions
             if not self.check_collision(nearest, new_point):
                 self.tree.append(new_point)
-                self.parent_map[tuple(np.round(new_point, decimals=6))] = nearest  # Ensure rounding
+                self.parent_map[tuple(np.round(new_point, decimals=6))] = nearest
 
-                # If goal is reached
+                # If the goal is reached
                 if self.distance(new_point, self.goal) < self.step_size:
                     self.tree.append(self.goal)
-                    self.parent_map[tuple(np.round(self.goal, decimals=6))] = new_point  # Ensure rounding
-                    break
+                    self.parent_map[tuple(np.round(self.goal, decimals=6))] = new_point
+
+                    # Compute the path length
+                    try:
+                        path = self.get_path()
+                        path_length = np.sum(np.linalg.norm(np.diff(path, axis=0), axis=1))
+
+                        # Update the shortest path if this one is better
+                        if path_length < shortest_path_length:
+                            shortest_path = path
+                            shortest_path_length = path_length
+                    except KeyError:
+                        # Handle cases where the goal is not properly connected
+                        continue
+
+        return shortest_path
 
     def get_path(self):
         """
@@ -132,6 +150,7 @@ class RRT:
         current_node = self.goal
         while not np.array_equal(current_node, self.start):
             current_node = self.parent_map[tuple(np.round(current_node, decimals=6))]
+            print(current_node)
             path.append(current_node)
         return np.array(path[::-1])
 
@@ -168,4 +187,25 @@ if __name__ == "__main__":
         cut_path = np.append(cut_path, goal)
 
     # Plot the environment and the resulting path
-    plot_environment(rrt, [avoid_x, avoid_y], obstacles, path=cut_path, optimize=False)
+    plt.figure(figsize=(8, 8))
+    ax = plt.gca()
+
+    # Plot obstacles
+    for obs in rrt.obstacles:
+        ax.add_patch(Rectangle((obs[0], obs[1]), obs[2], obs[3], color="gray"))
+
+    # Plot the RRT tree
+    tree_points = np.array(rrt.tree)
+    plt.plot(tree_points[:, 0], tree_points[:, 1], 'bo', markersize=2)
+
+    # Plot the path
+    if path is not None:
+        if path.ndim == 1:
+            path = path.reshape(-1, 2)
+        plt.plot(path[:, 0], path[:, 1], 'r-', linewidth=2)
+    plt.grid(True)
+    plt.xlim(rrt.bounds[0])
+    plt.ylim(rrt.bounds[1])
+    plt.gca().set_aspect('equal', adjustable='box')
+    plt.title("RRT Path Planning")
+    plt.show()

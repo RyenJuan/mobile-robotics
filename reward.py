@@ -152,15 +152,11 @@ def reward_function(optimized_coords, x_initial, y_fixed, avoid_set, obstacles, 
     time_array = time_calculator(x, y, running_dist, curvature, v)
     time_penalty = 100000*time_array[-1]
 
-
-
     # Final reward function with length, curvature, and radius of curvature penalties
     # reward = np.sum(norm_tangent) + np.sum(norm_curvature) + curvature_penalty_term + total_length + straight_line_penalty
     # reward = -np.sum(norm_tangent) - np.sum(norm_curvature) + curvature_penalty_term + 150*total_length + collision_penalty + time_penalty
 
     reward = time_penalty + 150*total_length + curvature_penalty_term + collision_penalty
-    # print(f"Reward: {reward}")
-    # print(f"1st Derivative: {-np.sum(norm_tangent):.8f} 2nd Derivative: {-np.sum(norm_curvature):.8f} Curvature: {curvature_penalty_term:.8f} Total Length: {total_length:.8f} Collision {collision_penalty} Time: {time_penalty}")
-    # print(f"Reward: {reward}")
+
     print(f"Time: {time_penalty} Total Length: {total_length:.8f} Curvature: {curvature_penalty_term:.8f}  Collision {collision_penalty}")
     return reward  # Negate for minimization
